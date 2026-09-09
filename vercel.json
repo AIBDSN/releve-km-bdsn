@@ -1,25 +1,18 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "relevekm.mon-app-manager.fr"
-        }
-      ],
-      "destination": "/index.html"
-    },
-    {
-      "source": "/",
+      "src": "/",
       "has": [
         {
           "type": "host",
           "value": "vehicule.mon-app-manager.fr"
         }
       ],
-      "destination": "/manager.html"
+      "dest": "/manager.html"
+    },
+    {
+      "handle": "filesystem"
     }
   ]
 }

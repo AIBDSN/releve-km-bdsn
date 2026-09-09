@@ -6,7 +6,7 @@
       "has": [
         {
           "type": "host",
-          "value": "releve.mon-app-manager.fr"
+          "value": "relevekm.mon-app-manager.fr"
         }
       ],
       "destination": "/index.html"
@@ -16,7 +16,7 @@
       "has": [
         {
           "type": "host",
-          "value": "manager.mon-app-manager.fr"
+          "value": "vehicule.mon-app-manager.fr"
         }
       ],
       "destination": "/manager.html"

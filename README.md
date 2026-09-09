@@ -18,4 +18,6 @@ Les deux pages utilisent une clé publique Supabase côté navigateur. C'est nor
 - conserver une protection anti-bruteforce/rate limit sur l'authentification, car les techniciens utilisent un PIN à 6 chiffres ;
 - éviter toute donnée libre non maîtrisée dans les champs affichés publiquement.
 
+Dans Supabase Auth, désactiver l'inscription publique et activer la protection contre les mots de passe compromis. Ces deux réglages ne sont pas stockés dans les migrations SQL : ils se configurent dans le tableau de bord Supabase et doivent rester activés.
+
 Les pages empêchent l'indexation, ne transmettent pas de referrer, échappent les données affichées dans l'interface, et l'export CSV neutralise les valeurs pouvant être interprétées comme formules par Excel.

@@ -11,7 +11,7 @@
 <style>
 /* =====================================================================
    RELEVÉ KILOMÉTRIQUE — APP TECHNICIEN
-   Version V1.1
+   Version V1.2
    Agence Boucles de Seine Nord · GRDF
    ===================================================================== */
 
@@ -234,7 +234,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       <h1>Relevé kilométrique</h1>
       <p id="soustitre">Agence Boucles de Seine Nord</p>
     </div>
-    <div class="marque">V1.1</div>
+    <div class="marque">V1.2</div>
   </header>
 
   <main class="feuille">
@@ -338,10 +338,10 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 /* =====================================================================
-   RELEVÉ KILOMÉTRIQUE — LOGIQUE APPLICATIVE  ·  V1.1
+   RELEVÉ KILOMÉTRIQUE — LOGIQUE APPLICATIVE  ·  V1.2
    ===================================================================== */
 
-const VERSION   = 'V1.1';
+const VERSION   = 'V1.2';
 const SUPA_URL  = 'https://regjplqlvlkbqorfzlsd.supabase.co';
 const SUPA_KEY  = 'sb_publishable_2FmqoaEwSR4HlBvfRllu3g_L-ofivjJ';
 const DOMAINE   = '@vlg-releve.local';   // domaine technique, aucun mail réel
@@ -373,7 +373,7 @@ const memo = {
 };
 
 /* ---- État de session ---- */
-let perso = null;        // {id, affichage, site}
+let perso = null;        // {jeton, affichage, site}
 let vehicules = [];      // parc complet, chargé une fois à l'ouverture
 let choisi = null;       // véhicule sélectionné {id, immatriculation, modele}
 let dernier = null;      // dernier relevé du véhicule sélectionné
@@ -451,7 +451,7 @@ function dessinePoints(){
 async function connexion(){
   message('msg-pin', 'info', 'Connexion en cours…');
   const { error } = await db.auth.signInWithPassword({
-    email: perso.id + DOMAINE,
+    email: perso.jeton + DOMAINE,
     password: pin
   });
   if (error){
@@ -685,6 +685,7 @@ $('btn-autre').onclick = () => ouvrirReleve();
 async function deconnecter(){
   await db.auth.signOut();
   perso = memo.lire(); pin = '';
+  if (perso && !perso.jeton){ memo.vider(); perso = null; }
   $('soustitre').textContent = 'Agence Boucles de Seine Nord';
   if (perso) versPin(perso); else ecran('recherche');
 }
@@ -695,7 +696,8 @@ $('deconnexion2').onclick = deconnecter;
   const { data: { session } } = await db.auth.getSession();
   if (session){ await apresConnexion(); return; }
   const enregistre = memo.lire();
-  if (enregistre){ versPin(enregistre); return; }
+  if (enregistre && enregistre.jeton){ versPin(enregistre); return; }
+  memo.vider();
   ecran('recherche');
 })();
 </script>

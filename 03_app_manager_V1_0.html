@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#00285A">
+<meta name="robots" content="noindex, nofollow">
+<title>Parc véhicules — Pilotage BDSN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =====================================================================
+   RELEVÉ KILOMÉTRIQUE — ÉCRAN MANAGER
+   Version V1.0
+   Agence Boucles de Seine Nord · GRDF
+   Système de design repris de l'app technicien V1.3.
+   ===================================================================== */
+
+:root{
+  --bleu:      #00285A;
+  --bleu-clair:#0A3D82;
+  --orange:    #F07D00;
+  --ardoise:   #121B2B;
+  --brume:     #E8EDF3;
+  --papier:    #F7F9FC;
+  --blanc:     #FFFFFF;
+  --rouge:     #C4341C;
+  --vert:      #1B7A4B;
+  --gris:      #5C6B80;
+  --r: 14px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none !important}
+
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--papier);
+  color:var(--ardoise);
+  min-height:100dvh;
+}
+
+/* ---- Bandeau ---- */
+.bandeau{
+  background:var(--bleu);color:var(--blanc);
+  padding:18px 26px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.bandeau h1{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:29px;line-height:1.02;font-weight:700;letter-spacing:.01em;
+}
+.bandeau p{font-size:13px;color:#9FB6D4;margin-top:4px}
+.bandeau .droite{display:flex;align-items:center;gap:14px}
+.marque{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:13px;font-weight:600;color:#7E9AC0;
+  border:1px solid #2A4A7A;border-radius:99px;padding:4px 11px;white-space:nowrap;
+}
+.lien-clair{
+  background:none;border:none;color:#9FB6D4;font:inherit;font-size:14px;
+  cursor:pointer;text-decoration:underline;padding:6px;
+}
+.lien-clair:hover{color:var(--blanc)}
+
+main{padding:24px 26px 60px;max-width:1320px;margin:0 auto}
+
+/* ---- Écrans ---- */
+.ecran{display:none}
+.ecran.actif{display:block}
+
+.titre{font-family:'Barlow Condensed',sans-serif;font-size:23px;font-weight:600;color:var(--bleu);margin-bottom:4px}
+.sous{font-size:14px;color:var(--gris);margin-bottom:20px;line-height:1.45}
+
+/* ---- Connexion ---- */
+.boite{
+  max-width:420px;margin:60px auto;background:var(--blanc);
+  border:2px solid var(--brume);border-radius:20px;padding:28px 26px;
+}
+label.champ{display:block;margin-bottom:18px}
+label.champ > span{display:block;font-size:13px;font-weight:600;color:var(--gris);margin-bottom:7px}
+input,select{
+  width:100%;font-family:inherit;font-size:16px;color:var(--ardoise);
+  background:var(--blanc);border:2px solid var(--brume);border-radius:var(--r);
+  padding:13px 14px;transition:border-color .15s;
+}
+input:focus,select:focus{outline:none;border-color:var(--bleu-clair)}
+.principal{
+  width:100%;border:none;border-radius:var(--r);background:var(--orange);color:var(--blanc);
+  font-family:inherit;font-size:16px;font-weight:600;padding:16px;cursor:pointer;transition:opacity .15s;
+}
+.principal:active{transform:scale(.99)}
+.principal:disabled{opacity:.45;cursor:default}
+
+/* ---- Messages ---- */
+.alerte{border-radius:var(--r);padding:14px 16px;font-size:14.5px;line-height:1.5;margin-bottom:18px;border-left:5px solid}
+.alerte.rouge{background:#FCEEEB;border-color:var(--rouge);color:#7C2213}
+.alerte.orange{background:#FEF4E6;border-color:var(--orange);color:#8A4A00}
+.alerte.info{background:#EAF1FA;border-color:var(--bleu-clair);color:#123A6B}
+.alerte b{display:block;margin-bottom:3px}
+
+/* ---- Chiffres de tête ---- */
+.chiffres{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px}
+.chiffre{
+  background:var(--blanc);border:2px solid var(--brume);border-radius:var(--r);
+  padding:15px 17px;cursor:pointer;text-align:left;font:inherit;
+  transition:border-color .12s;
+}
+.chiffre:hover{border-color:#C9D6E6}
+.chiffre.actif{border-color:var(--bleu);background:#F2F6FC}
+.chiffre b{
+  display:block;font-family:'Barlow Condensed',sans-serif;
+  font-size:38px;font-weight:700;line-height:1;color:var(--bleu);font-variant-numeric:tabular-nums;
+}
+.chiffre.rouge b{color:var(--rouge)}
+.chiffre.orange b{color:#B25E00}
+.chiffre span{display:block;font-size:13px;color:var(--gris);margin-top:6px}
+
+/* ---- Barre d'outils ---- */
+.outils{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.outils input{max-width:300px}
+.secondaire{
+  border:2px solid var(--brume);background:var(--blanc);color:var(--bleu);
+  font:inherit;font-size:14px;font-weight:600;border-radius:var(--r);
+  padding:12px 16px;cursor:pointer;white-space:nowrap;transition:border-color .12s;
+}
+.secondaire:hover{border-color:var(--bleu-clair)}
+.compte{margin-left:auto;font-size:13.5px;color:var(--gris)}
+
+/* ---- Tableau ---- */
+.cadre{background:var(--blanc);border:2px solid var(--brume);border-radius:var(--r);overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{
+  position:sticky;top:0;background:var(--blanc);z-index:1;
+  text-align:left;font-size:12.5px;font-weight:600;color:var(--gris);
+  padding:13px 14px;border-bottom:2px solid var(--brume);white-space:nowrap;cursor:pointer;
+}
+th:hover{color:var(--bleu)}
+th .fleche{color:var(--orange);font-size:11px}
+td{padding:12px 14px;border-bottom:1px solid var(--brume);vertical-align:middle}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#F2F6FC}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.plaque{
+  font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;
+  letter-spacing:.05em;color:var(--bleu);white-space:nowrap;
+}
+.modele{color:var(--gris);font-size:13.5px}
+.badge{
+  display:inline-block;border-radius:99px;padding:3px 11px;
+  font-size:12.5px;font-weight:600;white-space:nowrap;
+}
+.badge.vert  {background:#E7F3ED;color:#12603A}
+.badge.orange{background:#FEF4E6;color:#8A4A00}
+.badge.rouge {background:#FCEEEB;color:#7C2213}
+.badge.gris  {background:var(--brume);color:var(--gris)}
+.drapeau{color:var(--orange);font-weight:600}
+.vide{text-align:center;color:var(--gris);font-size:14px;padding:34px 10px;line-height:1.5}
+
+/* ---- Fiche véhicule ---- */
+.voile{
+  position:fixed;inset:0;background:rgba(9,20,38,.55);
+  display:flex;align-items:flex-end;justify-content:center;z-index:20;
+}
+.fiche{
+  background:var(--papier);width:100%;max-width:620px;
+  border-radius:20px 20px 0 0;padding:24px 24px 30px;max-height:86dvh;overflow:auto;
+}
+@media (min-width:700px){
+  .voile{align-items:center}
+  .fiche{border-radius:20px}
+}
+.fiche header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px}
+.fiche .fermer{background:none;border:none;font:inherit;font-size:22px;color:var(--gris);cursor:pointer;line-height:1}
+.histo{background:var(--blanc);border:2px solid var(--brume);border-radius:var(--r);overflow:hidden}
+.histo div{display:flex;justify-content:space-between;gap:12px;padding:11px 15px;font-size:14px}
+.histo div + div{border-top:1px solid var(--brume)}
+.histo small{color:var(--gris);font-size:12.5px;display:block}
+
+@media (max-width:640px){
+  main{padding:18px 14px 50px}
+  .bandeau{padding:16px 14px}
+  td,th{padding:11px 10px}
+  .cachable{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="bandeau">
+  <div>
+    <h1>Parc véhicules</h1>
+    <p id="soustitre">Agence Boucles de Seine Nord</p>
+  </div>
+  <div class="droite">
+    <span class="marque">V1.0</span>
+    <button class="lien-clair" id="deconnexion" hidden>Se déconnecter</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ 1. CONNEXION ============ -->
+  <section id="ecran-connexion" class="ecran actif">
+    <div class="boite">
+      <h2 class="titre">Espace manager</h2>
+      <p class="sous">Réservé aux comptes managers de l'agence.</p>
+      <div id="msg-connexion"></div>
+      <label class="champ">
+        <span>Adresse de connexion</span>
+        <input id="email" type="email" autocomplete="username" autocapitalize="off"
+               spellcheck="false" placeholder="prenom.nom@…">
+      </label>
+      <label class="champ">
+        <span>Mot de passe</span>
+        <input id="motdepasse" type="password" autocomplete="current-password" placeholder="••••••">
+      </label>
+      <button class="principal" id="btn-connexion">Ouvrir le tableau de bord</button>
+    </div>
+  </section>
+
+  <!-- ============ 2. TABLEAU DE BORD ============ -->
+  <section id="ecran-parc" class="ecran">
+    <div id="msg-parc"></div>
+
+    <div class="chiffres">
+      <button class="chiffre actif" data-filtre="tous">
+        <b id="n-total">—</b><span>véhicules suivis</span>
+      </button>
+      <button class="chiffre" data-filtre="mois">
+        <b id="n-mois">—</b><span>relevés ce mois-ci</span>
+      </button>
+      <button class="chiffre orange" data-filtre="retard">
+        <b id="n-retard">—</b><span>sans relevé depuis 30 jours</span>
+      </button>
+      <button class="chiffre rouge" data-filtre="jamais">
+        <b id="n-jamais">—</b><span>jamais relevés</span>
+      </button>
+      <button class="chiffre orange" data-filtre="alerte">
+        <b id="n-alerte">—</b><span>saisies signalées</span>
+      </button>
+    </div>
+
+    <div class="outils">
+      <input id="recherche" type="text" autocomplete="off" autocapitalize="characters"
+             spellcheck="false" placeholder="Rechercher une plaque ou un modèle">
+      <button class="secondaire" id="btn-export">Exporter en CSV</button>
+      <button class="secondaire" id="btn-rafraichir">Actualiser</button>
+      <span class="compte" id="compte"></span>
+    </div>
+
+    <div class="cadre">
+      <table>
+        <thead>
+          <tr>
+            <th data-tri="immatriculation">Immatriculation</th>
+            <th data-tri="modele" class="cachable">Modèle</th>
+            <th data-tri="dernier_km" class="num">Dernier compteur</th>
+            <th data-tri="derniere_date">Date du relevé</th>
+            <th data-tri="jours">Ancienneté</th>
+            <th data-tri="delta" class="num cachable">Depuis le précédent</th>
+            <th data-tri="alerte" class="cachable">Signalement</th>
+          </tr>
+        </thead>
+        <tbody id="lignes"></tbody>
+      </table>
+      <p class="vide" id="vide" hidden>Aucun véhicule ne correspond.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ FICHE VÉHICULE ============ -->
+<div class="voile" id="voile" hidden>
+  <div class="fiche">
+    <header>
+      <div>
+        <div class="plaque" id="fiche-plaque" style="font-size:26px"></div>
+        <div class="modele" id="fiche-modele"></div>
+      </div>
+      <button class="fermer" id="fiche-fermer" aria-label="Fermer">✕</button>
+    </header>
+    <p class="sous" style="margin-bottom:12px">Douze derniers relevés, du plus récent au plus ancien.</p>
+    <div class="histo" id="fiche-histo"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+/* =====================================================================
+   ÉCRAN MANAGER — LOGIQUE APPLICATIVE  ·  V1.0
+   ===================================================================== */
+
+const VERSION      = 'V1.0';
+const SUPA_URL     = 'https://regjplqlvlkbqorfzlsd.supabase.co';
+const SUPA_KEY     = 'sb_publishable_2FmqoaEwSR4HlBvfRllu3g_L-ofivjJ';
+const SEUIL_RETARD = 30;     // jours sans relevé avant alerte — relevé mensuel
+const SEUIL_ECART  = 1000;   // écart inhabituel entre deux relevés, en km
+
+const db = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+/* ---- Utilitaires ---- */
+const $ = id => document.getElementById(id);
+const espaces = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const jourFr  = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('fr-FR',
+                  {day:'2-digit', month:'2-digit', year:'numeric'}) : '—';
+const normaliser = t => (t || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+function ecran(nom){
+  document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif'));
+  $('ecran-' + nom).classList.add('actif');
+  window.scrollTo(0, 0);
+}
+function message(cible, type, titre, texte){
+  $(cible).innerHTML = texte
+    ? `<div class="alerte ${type}"><b>${titre}</b>${texte}</div>`
+    : (titre ? `<div class="alerte ${type}">${titre}</div>` : '');
+}
+/* Toute donnée venant de la base passe par ici avant d'entrer dans le DOM */
+function propre(t){
+  return String(t == null ? '' : t)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ---- État ---- */
+let parc     = [];    // vue_parc enrichie : delta, alerte, historique
+let releves  = [];    // tous les relevés
+let auteurs  = {};    // id → « Prénom N. »
+let filtre   = 'tous';
+let tri      = { colonne:'jours', sens:-1 };
+
+/* =====================================================================
+   1. CONNEXION
+   ===================================================================== */
+$('btn-connexion').onclick = async () => {
+  const email = $('email').value.trim();
+  const mdp   = $('motdepasse').value;
+  if (!email || !mdp){
+    message('msg-connexion','rouge','Champs incomplets','Renseignez votre adresse et votre mot de passe.');
+    return;
+  }
+  $('btn-connexion').disabled = true;
+  $('btn-connexion').textContent = 'Connexion…';
+
+  const { error } = await db.auth.signInWithPassword({ email, password: mdp });
+
+  $('btn-connexion').disabled = false;
+  $('btn-connexion').textContent = 'Ouvrir le tableau de bord';
+
+  if (error){
+    message('msg-connexion','rouge','Connexion refusée','Adresse ou mot de passe incorrect.');
+    return;
+  }
+  await apresConnexion();
+};
+$('motdepasse').addEventListener('keydown', e => { if (e.key === 'Enter') $('btn-connexion').click(); });
+
+async function apresConnexion(){
+  /* Le manager voit tout l'annuaire : on cible explicitement sa propre ligne */
+  const { data: { user } } = await db.auth.getUser();
+  const { data: moi } = await db.from('profils')
+    .select('prenom, nom, role').eq('id', user.id).maybeSingle();
+
+  if (!moi || moi.role !== 'manager'){
+    await db.auth.signOut();
+    message('msg-connexion','rouge','Compte non autorisé',
+      "Ce tableau de bord est réservé aux managers. Pour saisir un relevé, utilisez l'application technicien.");
+    return;
+  }
+  $('motdepasse').value = '';
+  $('soustitre').textContent = `Agence Boucles de Seine Nord · ${moi.prenom} ${moi.nom}`;
+  $('deconnexion').hidden = false;
+  message('msg-connexion','','');
+  ecran('parc');
+  await charger();
+}
+
+$('deconnexion').onclick = async () => {
+  await db.auth.signOut();
+  parc = []; releves = []; auteurs = {};
+  $('deconnexion').hidden = true;
+  $('soustitre').textContent = 'Agence Boucles de Seine Nord';
+  ecran('connexion');
+};
+
+/* =====================================================================
+   2. CHARGEMENT DES DONNÉES
+   ===================================================================== */
+async function charger(){
+  message('msg-parc','info','Chargement du parc…');
+
+  const [rParc, rReleves, rProfils] = await Promise.all([
+    db.from('vue_parc').select('*').eq('actif', true).order('immatriculation'),
+    db.from('releves_km').select('vehicule_id, auteur_id, date_releve, kilometrage, alerte_confirmee')
+      .order('date_releve', { ascending:false }),
+    db.from('profils').select('id, prenom, nom')
+  ]);
+
+  if (rParc.error || rReleves.error){
+    message('msg-parc','rouge','Données non chargées',
+      propre((rParc.error || rReleves.error).message));
+    return;
+  }
+  message('msg-parc','','');
+
+  auteurs = {};
+  (rProfils.data || []).forEach(p => {
+    auteurs[p.id] = `${p.prenom} ${(p.nom || '').charAt(0)}.`;
+  });
+
+  releves = rReleves.data || [];
+
+  /* Historique par véhicule, du plus récent au plus ancien */
+  const parVehicule = {};
+  releves.forEach(r => (parVehicule[r.vehicule_id] ||= []).push(r));
+
+  parc = (rParc.data || []).map(v => {
+    const h  = parVehicule[v.id] || [];
+    const r0 = h[0], r1 = h[1];
+    return {
+      ...v,
+      historique: h,
+      delta : (r0 && r1) ? r0.kilometrage - r1.kilometrage : null,
+      alerte: !!(r0 && r0.alerte_confirmee),
+      jours : v.jours_depuis_releve
+    };
+  });
+
+  compter();
+  afficher();
+}
+$('btn-rafraichir').onclick = charger;
+
+/* =====================================================================
+   3. CHIFFRES DE TÊTE ET FILTRES
+   ===================================================================== */
+function debutDuMois(){
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().slice(0, 10);
+}
+function compter(){
+  const debut = debutDuMois();
+  $('n-total').textContent  = parc.length;
+  $('n-mois').textContent   = parc.filter(v => v.derniere_date && v.derniere_date >= debut).length;
+  $('n-retard').textContent = parc.filter(v => v.jours !== null && v.jours > SEUIL_RETARD).length;
+  $('n-jamais').textContent = parc.filter(v => v.derniere_date === null).length;
+  $('n-alerte').textContent = parc.filter(v => v.alerte).length;
+}
+
+document.querySelectorAll('.chiffre').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('.chiffre').forEach(x => x.classList.remove('actif'));
+    b.classList.add('actif');
+    filtre = b.dataset.filtre;
+    afficher();
+  };
+});
+
+$('recherche').addEventListener('input', afficher);
+
+document.querySelectorAll('th[data-tri]').forEach(th => {
+  th.onclick = () => {
+    const c = th.dataset.tri;
+    tri = { colonne:c, sens: (tri.colonne === c ? -tri.sens : 1) };
+    afficher();
+  };
+});
+
+/* =====================================================================
+   4. AFFICHAGE DU TABLEAU
+   ===================================================================== */
+function retenus(){
+  const debut = debutDuMois();
+  const t = normaliser($('recherche').value.trim());
+
+  return parc.filter(v => {
+    if (filtre === 'mois'   && !(v.derniere_date && v.derniere_date >= debut)) return false;
+    if (filtre === 'retard' && !(v.jours !== null && v.jours > SEUIL_RETARD))  return false;
+    if (filtre === 'jamais' && v.derniere_date !== null) return false;
+    if (filtre === 'alerte' && !v.alerte) return false;
+    if (t.length >= 2 &&
+        !normaliser(v.immatriculation).includes(t) &&
+        !normaliser(v.modele).includes(t)) return false;
+    return true;
+  });
+}
+
+function classer(liste){
+  const c = tri.colonne, s = tri.sens;
+  return liste.slice().sort((a, b) => {
+    let x = a[c], y = b[c];
+    if (c === 'alerte'){ x = a.alerte ? 1 : 0; y = b.alerte ? 1 : 0; }
+    /* Les valeurs absentes ferment toujours la marche */
+    if (x === null || x === undefined) return 1;
+    if (y === null || y === undefined) return -1;
+    if (typeof x === 'string') return s * x.localeCompare(y, 'fr');
+    return s * (x - y);
+  });
+}
+
+function badgeAnciennete(v){
+  if (v.jours === null) return '<span class="badge gris">jamais relevé</span>';
+  if (v.jours > SEUIL_RETARD) return `<span class="badge rouge">${v.jours} jours</span>`;
+  if (v.jours > SEUIL_RETARD - 10) return `<span class="badge orange">${v.jours} jours</span>`;
+  return `<span class="badge vert">${v.jours === 0 ? "aujourd'hui" : v.jours + ' jours'}</span>`;
+}
+
+function afficher(){
+  const liste = classer(retenus());
+
+  document.querySelectorAll('th[data-tri]').forEach(th => {
+    const f = th.dataset.tri === tri.colonne ? (tri.sens === 1 ? ' ▲' : ' ▼') : '';
+    th.innerHTML = th.textContent.replace(/[ ▲▼]+$/, '') + (f ? `<span class="fleche">${f}</span>` : '');
+  });
+
+  $('compte').textContent = `${liste.length} véhicule${liste.length > 1 ? 's' : ''} affiché${liste.length > 1 ? 's' : ''} sur ${parc.length}`;
+  $('vide').hidden = liste.length > 0;
+
+  $('lignes').innerHTML = liste.map((v, i) => `
+    <tr data-rang="${i}">
+      <td><span class="plaque">${propre(v.immatriculation)}</span></td>
+      <td class="modele cachable">${propre(v.modele)}</td>
+      <td class="num">${v.dernier_km === null ? '—' : espaces(v.dernier_km) + ' km'}</td>
+      <td>${jourFr(v.derniere_date)}</td>
+      <td>${badgeAnciennete(v)}</td>
+      <td class="num cachable">${v.delta === null ? '—'
+          : (v.delta > SEUIL_ECART ? '<span class="drapeau">' + espaces(v.delta) + ' km</span>'
+                                   : espaces(v.delta) + ' km')}</td>
+      <td class="cachable">${v.alerte ? '<span class="badge orange">à vérifier</span>' : ''}</td>
+    </tr>`).join('');
+
+  $('lignes').querySelectorAll('tr').forEach(tr => {
+    tr.onclick = () => ouvrirFiche(liste[+tr.dataset.rang]);
+  });
+}
+
+/* =====================================================================
+   5. FICHE VÉHICULE
+   ===================================================================== */
+function ouvrirFiche(v){
+  $('fiche-plaque').textContent = v.immatriculation;
+  $('fiche-modele').textContent = v.modele || '';
+
+  const h = v.historique.slice(0, 12);
+  $('fiche-histo').innerHTML = h.length
+    ? h.map(r => `
+        <div>
+          <span>${jourFr(r.date_releve)}
+            <small>${propre(auteurs[r.auteur_id] || 'auteur inconnu')}${r.alerte_confirmee ? ' · saisie signalée' : ''}</small>
+          </span>
+          <span class="num"><b>${espaces(r.kilometrage)} km</b></span>
+        </div>`).join('')
+    : '<div><span>Aucun relevé enregistré pour ce véhicule.</span></div>';
+
+  $('voile').hidden = false;
+}
+$('fiche-fermer').onclick = () => { $('voile').hidden = true; };
+$('voile').onclick = e => { if (e.target === $('voile')) $('voile').hidden = true; };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $('voile').hidden = true; });
+
+/* =====================================================================
+   6. EXPORT CSV — séparateur point-virgule, lisible par Excel français
+   ===================================================================== */
+$('btn-export').onclick = () => {
+  const liste = classer(retenus());
+  const entete = ['Immatriculation','Modele','Site','Dernier compteur (km)',
+                  'Date du releve','Anciennete (jours)','Depuis le precedent (km)','Signalement'];
+
+  const cellule = c => `"${String(c == null ? '' : c).replace(/"/g, '""')}"`;
+  const lignes = liste.map(v => [
+    v.immatriculation, v.modele || '', v.site,
+    v.dernier_km === null ? '' : v.dernier_km,
+    v.derniere_date ? jourFr(v.derniere_date) : '',
+    v.jours === null ? '' : v.jours,
+    v.delta === null ? '' : v.delta,
+    v.alerte ? 'a verifier' : ''
+  ].map(cellule).join(';'));
+
+  const csv = '\uFEFF' + [entete.map(cellule).join(';'), ...lignes].join('\r\n');
+  const url = URL.createObjectURL(new Blob([csv], { type:'text/csv;charset=utf-8;' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `parc_vehicules_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+/* =====================================================================
+   7. DÉMARRAGE
+   ===================================================================== */
+(async function demarrage(){
+  const { data: { session } } = await db.auth.getSession();
+  if (session) await apresConnexion();
+  else ecran('connexion');
+})();
+</script>
+</body>
+</html>

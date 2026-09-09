@@ -454,9 +454,10 @@ let minuteur;
 $('recherche').addEventListener('input', e => {
   clearTimeout(minuteur);
   const terme = e.target.value.trim();
-  if (terme.length < 2){
-    $('resultats').innerHTML = terme.length === 1
-      ? '<p class="vide">Encore un caractère…</p>' : '';
+  if (terme.length < 3){
+    const restants = 3 - terme.length;
+    $('resultats').innerHTML = terme.length
+      ? `<p class="vide">Encore ${restants} caractère${restants > 1 ? 's' : ''}…</p>` : '';
     return;
   }
   $('resultats').innerHTML = '<p class="chargement">Recherche…</p>';

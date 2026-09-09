@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#00285A">
 <meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://regjplqlvlkbqorfzlsd.supabase.co wss://regjplqlvlkbqorfzlsd.supabase.co; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests">
+<link rel="icon" type="image/png" href="assets/dashboard-favicon.png">
+<link rel="apple-touch-icon" href="assets/dashboard-favicon.png">
 <title>Parc véhicules — Pilotage BDSN</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,9 +16,9 @@
 <style>
 /* =====================================================================
    RELEVÉ KILOMÉTRIQUE — ÉCRAN MANAGER
-   Version V1.0
+   Version V1.1
    Agence Boucles de Seine Nord · GRDF
-   Système de design repris de l'app technicien V1.3.
+   Système de design repris de l'app technicien V1.5.
    ===================================================================== */
 
 :root{
@@ -36,16 +40,23 @@
 
 body{
   font-family:'Inter',system-ui,sans-serif;
-  background:var(--papier);
+  background:#EEF3F8;
   color:var(--ardoise);
   min-height:100dvh;
 }
 
 /* ---- Bandeau ---- */
 .bandeau{
-  background:var(--bleu);color:var(--blanc);
-  padding:18px 26px;
+  background:linear-gradient(145deg, #00285A 0%, #083D77 74%, #124C8D 100%);
+  color:var(--blanc);
+  padding:20px 26px;
   display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  box-shadow:0 10px 26px rgba(0,40,90,.18);
+}
+.identite{display:flex;align-items:center;gap:15px;min-width:0}
+.logo-topbar{
+  width:82px;height:auto;flex:none;display:block;
+  filter:drop-shadow(0 8px 14px rgba(0,0,0,.20));
 }
 .bandeau h1{
   font-family:'Barlow Condensed',sans-serif;
@@ -73,6 +84,22 @@ main{padding:24px 26px 60px;max-width:1320px;margin:0 auto}
 .titre{font-family:'Barlow Condensed',sans-serif;font-size:23px;font-weight:600;color:var(--bleu);margin-bottom:4px}
 .sous{font-size:14px;color:var(--gris);margin-bottom:20px;line-height:1.45}
 
+.mission{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:18px;
+  margin-bottom:20px;padding:20px 22px;background:var(--blanc);
+  border:1px solid #DDE6F0;border-radius:18px;
+  box-shadow:0 12px 28px rgba(18,27,43,.06);
+}
+.mission h2{
+  font-family:'Barlow Condensed',sans-serif;font-size:30px;line-height:1.05;
+  color:var(--bleu);font-weight:700;margin-bottom:6px;
+}
+.mission p{font-size:14px;color:var(--gris);line-height:1.45;max-width:680px}
+.mission .accent{
+  min-width:180px;border-left:4px solid var(--orange);padding-left:14px;
+  color:var(--bleu);font-size:13px;font-weight:700;
+}
+
 /* ---- Connexion ---- */
 .boite{
   max-width:420px;margin:60px auto;background:var(--blanc);
@@ -83,9 +110,9 @@ label.champ > span{display:block;font-size:13px;font-weight:600;color:var(--gris
 input,select{
   width:100%;font-family:inherit;font-size:16px;color:var(--ardoise);
   background:var(--blanc);border:2px solid var(--brume);border-radius:var(--r);
-  padding:13px 14px;transition:border-color .15s;
+  padding:13px 14px;transition:border-color .15s,box-shadow .15s;
 }
-input:focus,select:focus{outline:none;border-color:var(--bleu-clair)}
+input:focus,select:focus{outline:none;border-color:var(--bleu-clair);box-shadow:0 0 0 4px rgba(10,61,130,.10)}
 .principal{
   width:100%;border:none;border-radius:var(--r);background:var(--orange);color:var(--blanc);
   font-family:inherit;font-size:16px;font-weight:600;padding:16px;cursor:pointer;transition:opacity .15s;
@@ -105,10 +132,10 @@ input:focus,select:focus{outline:none;border-color:var(--bleu-clair)}
 .chiffre{
   background:var(--blanc);border:2px solid var(--brume);border-radius:var(--r);
   padding:15px 17px;cursor:pointer;text-align:left;font:inherit;
-  transition:border-color .12s;
+  transition:border-color .12s,transform .08s,box-shadow .12s;
 }
-.chiffre:hover{border-color:#C9D6E6}
-.chiffre.actif{border-color:var(--bleu);background:#F2F6FC}
+.chiffre:hover{border-color:#C9D6E6;transform:translateY(-1px)}
+.chiffre.actif{border-color:var(--bleu);background:#F2F6FC;box-shadow:0 10px 22px rgba(18,27,43,.08)}
 .chiffre b{
   display:block;font-family:'Barlow Condensed',sans-serif;
   font-size:38px;font-weight:700;line-height:1;color:var(--bleu);font-variant-numeric:tabular-nums;
@@ -129,7 +156,7 @@ input:focus,select:focus{outline:none;border-color:var(--bleu-clair)}
 .compte{margin-left:auto;font-size:13.5px;color:var(--gris)}
 
 /* ---- Tableau ---- */
-.cadre{background:var(--blanc);border:2px solid var(--brume);border-radius:var(--r);overflow:auto}
+.cadre{background:var(--blanc);border:2px solid var(--brume);border-radius:var(--r);overflow:auto;box-shadow:0 10px 26px rgba(18,27,43,.05)}
 table{width:100%;border-collapse:collapse;font-size:14.5px}
 th{
   position:sticky;top:0;background:var(--blanc);z-index:1;
@@ -181,6 +208,9 @@ tbody tr:hover{background:#F2F6FC}
 @media (max-width:640px){
   main{padding:18px 14px 50px}
   .bandeau{padding:16px 14px}
+  .logo-topbar{width:66px}
+  .mission{display:block;padding:18px}
+  .mission .accent{margin-top:14px}
   td,th{padding:11px 10px}
   .cachable{display:none}
 }
@@ -189,12 +219,15 @@ tbody tr:hover{background:#F2F6FC}
 <body>
 
 <header class="bandeau">
-  <div>
-    <h1>Parc véhicules</h1>
-    <p id="soustitre">Agence Boucles de Seine Nord</p>
+  <div class="identite">
+    <img class="logo-topbar" src="assets/dashboard-topbar-logo.png" alt="">
+    <div>
+      <h1>Parc véhicules</h1>
+      <p id="soustitre">Agence Boucles de Seine Nord</p>
+    </div>
   </div>
   <div class="droite">
-    <span class="marque">V1.0</span>
+    <span class="marque">V1.1</span>
     <button class="lien-clair" id="deconnexion" hidden>Se déconnecter</button>
   </div>
 </header>
@@ -222,6 +255,14 @@ tbody tr:hover{background:#F2F6FC}
 
   <!-- ============ 2. TABLEAU DE BORD ============ -->
   <section id="ecran-parc" class="ecran">
+    <div class="mission">
+      <div>
+        <h2>Suivi de la campagne mensuelle</h2>
+        <p>Repérez rapidement les véhicules manquants, les relevés anciens et les saisies à vérifier avant l'export Excel.</p>
+      </div>
+      <div class="accent">Objectif : un parc à jour sans relance inutile.</div>
+    </div>
+
     <div id="msg-parc"></div>
 
     <div class="chiffres">
@@ -289,10 +330,10 @@ tbody tr:hover{background:#F2F6FC}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 /* =====================================================================
-   ÉCRAN MANAGER — LOGIQUE APPLICATIVE  ·  V1.0
+   ÉCRAN MANAGER — LOGIQUE APPLICATIVE  ·  V1.1
    ===================================================================== */
 
-const VERSION      = 'V1.0';
+const VERSION      = 'V1.1';
 const SUPA_URL     = 'https://regjplqlvlkbqorfzlsd.supabase.co';
 const SUPA_KEY     = 'sb_publishable_2FmqoaEwSR4HlBvfRllu3g_L-ofivjJ';
 const SEUIL_RETARD = 30;     // jours sans relevé avant alerte — relevé mensuel
@@ -313,9 +354,21 @@ function ecran(nom){
   window.scrollTo(0, 0);
 }
 function message(cible, type, titre, texte){
-  $(cible).innerHTML = texte
-    ? `<div class="alerte ${type}"><b>${titre}</b>${texte}</div>`
-    : (titre ? `<div class="alerte ${type}">${titre}</div>` : '');
+  const zone = $(cible);
+  zone.replaceChildren();
+  if (!titre && !texte) return;
+
+  const bloc = document.createElement('div');
+  bloc.className = ['alerte', type].filter(Boolean).join(' ');
+  if (texte){
+    const gras = document.createElement('b');
+    gras.textContent = titre;
+    bloc.appendChild(gras);
+    bloc.appendChild(document.createTextNode(texte));
+  } else {
+    bloc.textContent = titre;
+  }
+  zone.appendChild(bloc);
 }
 /* Toute donnée venant de la base passe par ici avant d'entrer dans le DOM */
 function propre(t){
@@ -567,7 +620,11 @@ $('btn-export').onclick = () => {
   const entete = ['Immatriculation','Modele','Site','Dernier compteur (km)',
                   'Date du releve','Anciennete (jours)','Depuis le precedent (km)','Signalement'];
 
-  const cellule = c => `"${String(c == null ? '' : c).replace(/"/g, '""')}"`;
+  const cellule = c => {
+    let valeur = String(c == null ? '' : c);
+    if (/^[=+\-@\t\r\n]/.test(valeur)) valeur = "'" + valeur;
+    return `"${valeur.replace(/"/g, '""')}"`;
+  };
   const lignes = liste.map(v => [
     v.immatriculation, v.modele || '', v.site,
     v.dernier_km === null ? '' : v.dernier_km,

@@ -4,14 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#00285A">
-<title>Relevé kilométrique — Agence BDSN — V1.4</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://regjplqlvlkbqorfzlsd.supabase.co wss://regjplqlvlkbqorfzlsd.supabase.co; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests">
+<link rel="icon" type="image/png" href="assets/dashboard-favicon.png">
+<link rel="apple-touch-icon" href="assets/dashboard-favicon.png">
+<title>Relevé kilométrique — Agence BDSN — V1.5</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* =====================================================================
    RELEVÉ KILOMÉTRIQUE — APP TECHNICIEN
-   Version V1.4
+   Version V1.5
    Agence Boucles de Seine Nord · GRDF
    ===================================================================== */
 
@@ -40,7 +45,8 @@
 html,body{height:100%}
 body{
   font-family:'Inter',system-ui,sans-serif;
-  background:var(--bleu);
+  background:
+    linear-gradient(160deg, #00285A 0%, #083D77 48%, #F07D00 180%);
   color:var(--ardoise);
   overscroll-behavior:none;
 }
@@ -52,9 +58,14 @@ body{
 .app > .bandeau{background:var(--bleu)}
 
 .bandeau{
-  padding:20px 22px 26px;
+  padding:22px 22px 24px;
   color:var(--blanc);
-  display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+}
+.identite{display:flex;align-items:center;gap:14px;min-width:0}
+.logo-topbar{
+  width:74px;height:auto;flex:none;display:block;
+  filter:drop-shadow(0 8px 14px rgba(0,0,0,.20));
 }
 .bandeau h1{
   font-family:'Barlow Condensed',sans-serif;
@@ -74,6 +85,23 @@ body{
   box-shadow:0 -8px 30px rgba(0,0,0,.22);
 }
 
+.intro{
+  background:var(--blanc);border:1px solid #DDE6F0;border-radius:18px;
+  padding:18px 18px 16px;margin-bottom:22px;
+  box-shadow:0 10px 26px rgba(18,27,43,.06);
+}
+.intro strong{
+  display:block;font-family:'Barlow Condensed',sans-serif;font-size:25px;
+  color:var(--bleu);line-height:1.05;margin-bottom:6px;
+}
+.intro p{font-size:14px;color:var(--gris);line-height:1.45}
+.etapes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.etape{
+  border:1px solid var(--brume);border-radius:12px;padding:9px 8px;
+  font-size:12px;font-weight:700;color:var(--bleu);text-align:center;background:#FBFCFE;
+}
+.etape span{display:block;color:var(--orange);font-size:16px;line-height:1;margin-bottom:4px}
+
 /* ---- Écrans ---- */
 .ecran{display:none;animation:entree .22s ease-out}
 .ecran.actif{display:block}
@@ -82,7 +110,7 @@ body{
 
 .titre{
   font-family:'Barlow Condensed',sans-serif;
-  font-size:23px;font-weight:600;color:var(--bleu);margin-bottom:4px;
+  font-size:25px;font-weight:600;color:var(--bleu);margin-bottom:4px;
 }
 .sous{font-size:14px;color:var(--gris);margin-bottom:20px;line-height:1.45}
 
@@ -94,9 +122,9 @@ label.champ > span{
 input,select{
   width:100%;font-family:inherit;font-size:17px;color:var(--ardoise);
   background:var(--blanc);border:2px solid var(--brume);border-radius:var(--r);
-  padding:15px 14px;transition:border-color .15s;
+  padding:16px 14px;transition:border-color .15s,box-shadow .15s;
 }
-input:focus,select:focus{outline:none;border-color:var(--bleu-clair)}
+input:focus,select:focus{outline:none;border-color:var(--bleu-clair);box-shadow:0 0 0 4px rgba(10,61,130,.10)}
 select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%235C6B80' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 15px center;padding-right:42px}
 
@@ -193,8 +221,9 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 /* ---- Boutons ---- */
 .principal{
   width:100%;border:none;border-radius:var(--r);background:var(--orange);color:var(--blanc);
-  font-family:inherit;font-size:17px;font-weight:600;padding:18px;cursor:pointer;
-  transition:transform .07s,opacity .15s;
+  font-family:inherit;font-size:17px;font-weight:700;padding:18px;cursor:pointer;
+  transition:transform .07s,opacity .15s,box-shadow .15s;
+  box-shadow:0 12px 22px rgba(240,125,0,.22);
 }
 .principal:active{transform:scale(.985)}
 .principal:disabled{opacity:.45;cursor:default}
@@ -231,25 +260,44 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .recap dd{font-weight:600;font-variant-numeric:tabular-nums}
 
 .chargement{text-align:center;color:var(--gris);font-size:14px;padding:22px}
+
+@media (max-width:380px){
+  .etapes{grid-template-columns:1fr}
+  .compteur input{font-size:44px}
+  .bandeau h1{font-size:27px}
+  .logo-topbar{width:62px}
+}
 </style>
 </head>
 <body>
 <div class="app">
 
   <header class="bandeau">
-    <div>
-      <h1>Relevé kilométrique</h1>
-      <p id="soustitre">Agence Boucles de Seine Nord</p>
+    <div class="identite">
+      <img class="logo-topbar" src="assets/dashboard-topbar-logo.png" alt="">
+      <div>
+        <h1>Relevé kilométrique</h1>
+        <p id="soustitre">Agence Boucles de Seine Nord</p>
+      </div>
     </div>
-    <div class="marque">V1.4</div>
+    <div class="marque">V1.5</div>
   </header>
 
   <main class="feuille">
 
     <!-- ============ 1. RECHERCHE ============ -->
     <section id="ecran-recherche" class="ecran actif">
+      <div class="intro">
+        <strong>Relevé mensuel des véhicules</strong>
+        <p>Identifiez-vous, choisissez le véhicule, puis saisissez le kilométrage affiché au compteur.</p>
+        <div class="etapes" aria-label="Étapes de saisie">
+          <div class="etape"><span>1</span>Agent</div>
+          <div class="etape"><span>2</span>Véhicule</div>
+          <div class="etape"><span>3</span>Compteur</div>
+        </div>
+      </div>
       <h2 class="titre">Qui êtes-vous ?</h2>
-      <p class="sous">Tapez le début de votre matricule ou de votre prénom.</p>
+      <p class="sous">Tapez votre matricule ou les premières lettres de votre prénom.</p>
       <label class="champ">
         <input id="recherche" type="text" inputmode="text" autocomplete="off"
                autocapitalize="off" spellcheck="false" placeholder="J60, Rach…">
@@ -285,8 +333,8 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 
     <!-- ============ 4. RELEVÉ ============ -->
     <section id="ecran-releve" class="ecran">
-      <h2 class="titre">Nouveau relevé</h2>
-      <p class="sous" id="sous-releve">Sélectionnez le véhicule, puis saisissez le compteur.</p>
+      <h2 class="titre">Kilométrage du mois</h2>
+      <p class="sous" id="sous-releve">La saisie prend moins d'une minute. Vérifiez bien la plaque avant d'enregistrer.</p>
 
       <div id="msg-releve"></div>
 
@@ -345,10 +393,10 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 /* =====================================================================
-   RELEVÉ KILOMÉTRIQUE — LOGIQUE APPLICATIVE  ·  V1.4
+   RELEVÉ KILOMÉTRIQUE — LOGIQUE APPLICATIVE  ·  V1.5
    ===================================================================== */
 
-const VERSION   = 'V1.4';
+const VERSION   = 'V1.5';
 const SUPA_URL  = 'https://regjplqlvlkbqorfzlsd.supabase.co';
 const SUPA_KEY  = 'sb_publishable_2FmqoaEwSR4HlBvfRllu3g_L-ofivjJ';
 const DOMAINE   = '@vlg-releve.local';   // domaine technique, aucun mail réel
@@ -361,6 +409,7 @@ const $  = id => document.getElementById(id);
 const espaces = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const jourFr  = d => new Date(d + 'T00:00:00').toLocaleDateString('fr-FR',
                     {day:'2-digit', month:'2-digit', year:'numeric'});
+const vider = el => el.replaceChildren();
 
 function ecran(nom){
   document.querySelectorAll('.ecran').forEach(e => e.classList.remove('actif'));
@@ -368,9 +417,21 @@ function ecran(nom){
   window.scrollTo(0, 0);
 }
 function message(cible, type, titre, texte){
-  $(cible).innerHTML = texte
-    ? `<div class="alerte ${type}"><b>${titre}</b>${texte}</div>`
-    : (titre ? `<div class="alerte ${type}">${titre}</div>` : '');
+  const zone = $(cible);
+  vider(zone);
+  if (!titre && !texte) return;
+
+  const bloc = document.createElement('div');
+  bloc.className = ['alerte', type].filter(Boolean).join(' ');
+  if (texte){
+    const gras = document.createElement('b');
+    gras.textContent = titre;
+    bloc.appendChild(gras);
+    bloc.appendChild(document.createTextNode(texte));
+  } else {
+    bloc.textContent = titre;
+  }
+  zone.appendChild(bloc);
 }
 /* Mémoire locale, tolérante : si le navigateur la refuse, l'app fonctionne quand même */
 const memo = {
@@ -416,8 +477,16 @@ async function chercher(terme){
   data.forEach(p => {
     const b = document.createElement('button');
     b.className = 'carte-perso';
-    b.innerHTML = `<span class="pastille">${p.affichage.charAt(0).toUpperCase()}</span>
-                   <span><b>${p.affichage}</b><small>${p.site}</small></span>`;
+    const pastille = document.createElement('span');
+    pastille.className = 'pastille';
+    pastille.textContent = String(p.affichage || '?').charAt(0).toUpperCase();
+    const bloc = document.createElement('span');
+    const nom = document.createElement('b');
+    nom.textContent = p.affichage || '';
+    const site = document.createElement('small');
+    site.textContent = p.site || '';
+    bloc.append(nom, site);
+    b.append(pastille, bloc);
     b.onclick = () => versPin(p);
     $('resultats').appendChild(b);
   });
@@ -562,7 +631,12 @@ $('rech-veh').addEventListener('input', e => {
   trouves.forEach(v => {
     const b = document.createElement('button');
     b.className = 'carte-veh';
-    b.innerHTML = `<span class="plaque">${v.immatriculation}</span><small>${v.modele || ''}</small>`;
+    const plaque = document.createElement('span');
+    plaque.className = 'plaque';
+    plaque.textContent = v.immatriculation || '';
+    const modele = document.createElement('small');
+    modele.textContent = v.modele || '';
+    b.append(plaque, modele);
     b.onclick = () => selectionner(v);
     $('liste-vehicules').appendChild(b);
   });
@@ -677,10 +751,20 @@ async function enregistrer(vehicule_id, date_releve, kilometrage, alerte_confirm
   }
 
   const v = vehicules.find(x => x.id === vehicule_id);
-  $('recap').innerHTML = `
-    <div><dt>Véhicule</dt><dd>${v ? v.immatriculation : '—'}</dd></div>
-    <div><dt>Date</dt><dd>${jourFr(date_releve)}</dd></div>
-    <div><dt>Compteur</dt><dd>${espaces(kilometrage)} km</dd></div>`;
+  vider($('recap'));
+  [
+    ['Véhicule', v ? v.immatriculation : '—'],
+    ['Date', jourFr(date_releve)],
+    ['Compteur', `${espaces(kilometrage)} km`]
+  ].forEach(([libelle, valeur]) => {
+    const ligne = document.createElement('div');
+    const dt = document.createElement('dt');
+    const dd = document.createElement('dd');
+    dt.textContent = libelle;
+    dd.textContent = valeur;
+    ligne.append(dt, dd);
+    $('recap').appendChild(ligne);
+  });
   ecran('ok');
 }
 

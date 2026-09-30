@@ -9,14 +9,14 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://regjplqlvlkbqorfzlsd.supabase.co wss://regjplqlvlkbqorfzlsd.supabase.co; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests">
 <link rel="icon" type="image/png" href="assets/dashboard-favicon.png">
 <link rel="apple-touch-icon" href="assets/dashboard-favicon.png">
-<title>Relevé kilométrique — Agence BDSN — V1.5</title>
+<title>Relevé kilométrique — Agence BDSN — V1.6</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* =====================================================================
    RELEVÉ KILOMÉTRIQUE — APP TECHNICIEN
-   Version V1.5
+   Version V1.6
    Agence Boucles de Seine Nord · GRDF
    ===================================================================== */
 
@@ -280,7 +280,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
         <p id="soustitre">Agence Boucles de Seine Nord</p>
       </div>
     </div>
-    <div class="marque">V1.5</div>
+    <div class="marque">V1.6</div>
   </header>
 
   <main class="feuille">
@@ -393,14 +393,15 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 /* =====================================================================
-   RELEVÉ KILOMÉTRIQUE — LOGIQUE APPLICATIVE  ·  V1.5
+   RELEVÉ KILOMÉTRIQUE — LOGIQUE APPLICATIVE  ·  V1.6
    ===================================================================== */
 
-const VERSION   = 'V1.5';
+const VERSION   = 'V1.6';
 const SUPA_URL  = 'https://regjplqlvlkbqorfzlsd.supabase.co';
 const SUPA_KEY  = 'sb_publishable_2FmqoaEwSR4HlBvfRllu3g_L-ofivjJ';
 const DOMAINE   = '@vlg-releve.local';   // domaine technique, aucun mail réel
 const ECART_MAX = 1500;                  // seuil d'alerte à la hausse, en km — aligné sur l'écran manager
+const VEHICULE_CIBLE = new URLSearchParams(location.search).get('v') || '';
 
 const db = supabase.createClient(SUPA_URL, SUPA_KEY);
 
@@ -446,6 +447,7 @@ let vehicules = [];      // parc complet, chargé une fois à l'ouverture
 let choisi = null;       // véhicule sélectionné {id, immatriculation, modele}
 let dernier = null;      // dernier relevé du véhicule sélectionné
 let pin = '';
+let vehiculeCibleTraite = false;
 
 /* =====================================================================
    1. RECHERCHE DU COLLABORATEUR
@@ -596,7 +598,10 @@ async function ouvrirReleve(){
   message('msg-releve','','');
   deselectionner();
 
-  if (vehicules.length) return;   // parc déjà en mémoire
+  if (vehicules.length){
+    await preselectionnerVehiculeCible();
+    return;
+  }   // parc déjà en mémoire
 
   const { data, error } = await db.from('vehicules')
     .select('id, immatriculation, modele').eq('actif', true).order('immatriculation');
@@ -605,11 +610,27 @@ async function ouvrirReleve(){
     return;
   }
   vehicules = data;
+  await preselectionnerVehiculeCible();
 }
 
 /* ---- Recherche du véhicule : 77 plaques, donc pas de liste déroulante.
         Le technicien tape 2 caractères de sa plaque ou de son modèle. ---- */
 function normaliser(t){ return t.toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+
+async function preselectionnerVehiculeCible(){
+  if (!VEHICULE_CIBLE || vehiculeCibleTraite || choisi) return;
+  vehiculeCibleTraite = true;
+  const cible = normaliser(VEHICULE_CIBLE);
+  const vehicule = vehicules.find(v => normaliser(v.immatriculation) === cible);
+  if (!vehicule){
+    message('msg-releve','orange','Véhicule non trouvé',
+      'La plaque transmise par le QR code n’est pas active dans le parc. Recherchez le véhicule manuellement.');
+    return;
+  }
+  await selectionner(vehicule);
+  message('msg-releve','info','Véhicule présélectionné',
+    'La plaque vient du QR code. Il ne reste plus qu’à saisir le kilométrage.');
+}
 
 $('rech-veh').addEventListener('input', e => {
   const brut = e.target.value.trim();
@@ -795,3 +816,4 @@ $('deconnexion2').onclick = deconnecter;
 </script>
 </body>
 </html>
+

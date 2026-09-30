@@ -16,9 +16,9 @@
 <style>
 /* =====================================================================
    RELEVÉ KILOMÉTRIQUE — ÉCRAN MANAGER
-   Version V1.1
+   Version V1.2
    Agence Boucles de Seine Nord · GRDF
-   Système de design repris de l'app technicien V1.5.
+   Système de design repris de l'app technicien V1.6.
    ===================================================================== */
 
 :root{
@@ -99,6 +99,19 @@ main{padding:24px 26px 60px;max-width:1320px;margin:0 auto}
   min-width:180px;border-left:4px solid var(--orange);padding-left:14px;
   color:var(--bleu);font-size:13px;font-weight:700;
 }
+
+.nav-modules{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.module-card{
+  background:var(--blanc);border:2px solid var(--brume);border-radius:var(--r);
+  padding:18px;text-align:left;font:inherit;cursor:pointer;min-height:150px;
+  display:flex;flex-direction:column;justify-content:space-between;gap:14px;
+  box-shadow:0 10px 24px rgba(18,27,43,.05);transition:border-color .12s,transform .08s;
+}
+.module-card:hover{border-color:var(--bleu-clair);transform:translateY(-1px)}
+.module-card b{font-family:'Barlow Condensed',sans-serif;font-size:25px;color:var(--bleu)}
+.module-card span{font-size:14px;color:var(--gris);line-height:1.4}
+.module-card em{font-style:normal;color:var(--orange);font-size:13px;font-weight:700}
 
 /* ---- Connexion ---- */
 .boite{
@@ -185,6 +198,48 @@ tbody tr:hover{background:#F2F6FC}
 .drapeau{color:var(--orange);font-weight:600}
 .vide{text-align:center;color:var(--gris);font-size:14px;padding:34px 10px;line-height:1.5}
 
+/* ---- Gestion véhicules ---- */
+.grille-vehicules{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start}
+.panneau{
+  background:var(--blanc);border:2px solid var(--brume);border-radius:var(--r);
+  padding:18px;box-shadow:0 10px 26px rgba(18,27,43,.05);
+}
+.panneau h3{font-family:'Barlow Condensed',sans-serif;font-size:24px;color:var(--bleu);margin-bottom:5px}
+.panneau p{font-size:13.5px;color:var(--gris);line-height:1.45;margin-bottom:14px}
+.deux{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions-ligne{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.actions-ligne button{font-size:12.5px;padding:8px 10px;border-radius:9px}
+.check-col{width:42px}
+.check-col input{width:auto}
+.mini{font-size:12px;color:var(--gris)}
+.print-zone{display:none}
+
+@media print{
+  body{background:white}
+  body *{visibility:hidden}
+  .print-zone,.print-zone *{visibility:visible}
+  .print-zone{
+    display:grid!important;position:absolute;inset:0;padding:12mm;
+    grid-template-columns:1fr 1fr;grid-auto-rows:132mm;gap:8mm;
+    background:white;color:#000;
+  }
+  .poster{
+    border:1px dashed #B8C0CC;display:flex;flex-direction:column;align-items:center;
+    break-inside:avoid;background:white;overflow:hidden;font-family:Arial,sans-serif;
+  }
+  .poster-head{width:100%;background:#0A56A3;color:white;text-align:center;padding:9mm 6mm 6mm}
+  .poster-head b{display:block;font-size:15pt;letter-spacing:.02em}
+  .poster-head span{font-size:7pt}
+  .poster-qr{width:44mm;height:44mm;margin:11mm auto 7mm;display:grid;place-items:center}
+  .poster-qr svg{width:44mm;height:44mm}
+  .poster-brand{text-align:center;font-weight:700;font-size:13pt;line-height:1.1}
+  .poster-model{text-align:center;font-size:10pt;margin-top:1mm}
+  .poster-plate{margin-top:6mm;border:1px solid #333;display:flex;align-items:center;min-width:55mm;height:15mm;font-weight:700;font-size:17pt}
+  .poster-plate span:first-child{align-self:stretch;background:#244AA5;color:white;font-size:8pt;width:10mm;display:grid;place-items:center}
+  .poster-plate span:last-child{padding:0 9mm}
+  .poster-foot{margin-top:auto;width:100%;padding:0 6mm 4mm;display:flex;justify-content:space-between;font-size:5.5pt;color:#667085}
+}
+
 /* ---- Fiche véhicule ---- */
 .voile{
   position:fixed;inset:0;background:rgba(9,20,38,.55);
@@ -211,6 +266,8 @@ tbody tr:hover{background:#F2F6FC}
   .logo-topbar{width:66px}
   .mission{display:block;padding:18px}
   .mission .accent{margin-top:14px}
+  .grille-vehicules{grid-template-columns:1fr}
+  .deux{grid-template-columns:1fr}
   td,th{padding:11px 10px}
   .cachable{display:none}
 }
@@ -227,7 +284,12 @@ tbody tr:hover{background:#F2F6FC}
     </div>
   </div>
   <div class="droite">
-    <span class="marque">V1.1</span>
+    <span class="marque">V1.2</span>
+    <nav class="nav-modules" id="nav-modules" hidden>
+      <button class="lien-clair" type="button" data-module="accueil">Accueil</button>
+      <button class="lien-clair" type="button" data-module="parc">Campagne mensuelle</button>
+      <button class="lien-clair" type="button" data-module="vehicules">Gestion véhicules</button>
+    </nav>
     <a class="lien-clair" id="gestion-comptes" href="accounts.html" hidden>Gestion des comptes</a>
     <button class="lien-clair" id="deconnexion" hidden>Se déconnecter</button>
   </div>
@@ -269,6 +331,34 @@ tbody tr:hover{background:#F2F6FC}
         <input id="manager-mdp2" type="password" autocomplete="new-password">
       </label>
       <button class="principal" id="btn-mdp-manager">Enregistrer le mot de passe</button>
+    </div>
+  </section>
+
+  <!-- ============ 2. ACCUEIL ============ -->
+  <section id="ecran-accueil" class="ecran">
+    <div class="mission">
+      <div>
+        <h2>Tableau de bord manager</h2>
+        <p>Choisissez le module à ouvrir : suivi mensuel, gestion du parc ou administration des comptes.</p>
+      </div>
+      <div class="accent">Même base, modules séparés pour éviter les mélanges.</div>
+    </div>
+    <div class="module-grid">
+      <button class="module-card" type="button" data-module="parc">
+        <b>Suivi de campagne</b>
+        <span>Voir les kilomètres saisis, les véhicules en retard et exporter le fichier CSV.</span>
+        <em>Ouvrir</em>
+      </button>
+      <button class="module-card" type="button" data-module="vehicules">
+        <b>Gestion véhicules</b>
+        <span>Créer, archiver, réactiver des véhicules et imprimer les affichettes QR.</span>
+        <em>Ouvrir</em>
+      </button>
+      <button class="module-card" type="button" id="module-comptes" hidden>
+        <b>Gestion des comptes</b>
+        <span>Créer des utilisateurs, réinitialiser les PIN mobiles et les mots de passe manager.</span>
+        <em>Ouvrir</em>
+      </button>
     </div>
   </section>
 
@@ -329,6 +419,71 @@ tbody tr:hover{background:#F2F6FC}
     </div>
   </section>
 
+  <!-- ============ 3. GESTION VÉHICULES ============ -->
+  <section id="ecran-vehicules" class="ecran">
+    <div class="mission">
+      <div>
+        <h2>Gestion des véhicules</h2>
+        <p>Ajoutez les véhicules arrivés, archivez ceux qui sortent du parc et imprimez les affichettes QR A6.</p>
+      </div>
+      <div class="accent">Les QR ouvrent l'application mobile avec la plaque déjà sélectionnée.</div>
+    </div>
+
+    <div id="msg-vehicules"></div>
+
+    <div class="grille-vehicules">
+      <aside class="panneau">
+        <h3>Créer un véhicule</h3>
+        <p>La plaque est normalisée au format AA-123-AA. Le kilométrage initial est optionnel.</p>
+        <form id="form-vehicule">
+          <label class="champ"><span>Immatriculation</span><input name="immatriculation" required maxlength="20" placeholder="EA-230-JX" autocapitalize="characters"></label>
+          <div class="deux">
+            <label class="champ"><span>Marque</span><input name="marque" required maxlength="60" placeholder="PEUGEOT"></label>
+            <label class="champ"><span>Modèle</span><input name="modele_court" required maxlength="80" placeholder="Boxer"></label>
+          </div>
+          <div class="deux">
+            <label class="champ"><span>Site</span><input name="site" maxlength="20" value="VLG"></label>
+            <label class="champ"><span>Km initial</span><input name="kilometrage_initial" inputmode="numeric" placeholder="Optionnel"></label>
+          </div>
+          <button class="principal" type="submit">Créer le véhicule</button>
+        </form>
+      </aside>
+
+      <section class="panneau">
+        <h3>Parc et affichettes</h3>
+        <p>Sélectionnez les véhicules, puis imprimez les QR. Après impression, la date d'affichette est mémorisée.</p>
+        <div class="outils">
+          <input id="veh-recherche-admin" type="search" placeholder="Rechercher plaque, marque, modèle">
+          <select id="veh-filtre" style="max-width:220px">
+            <option value="actifs">Actifs</option>
+            <option value="sans-affichette">Sans affichette</option>
+            <option value="archives">Archivés</option>
+            <option value="tous">Tous</option>
+          </select>
+          <button class="secondaire" id="btn-vehicules-refresh" type="button">Actualiser</button>
+          <button class="secondaire" id="btn-print-posters" type="button">Imprimer les affichettes</button>
+          <span class="compte" id="veh-compte"></span>
+        </div>
+        <div class="cadre">
+          <table>
+            <thead>
+              <tr>
+                <th class="check-col"><input id="veh-check-all" type="checkbox" aria-label="Tout sélectionner"></th>
+                <th>Véhicule</th>
+                <th>Site</th>
+                <th>Statut</th>
+                <th>Affichette</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="veh-lignes"></tbody>
+          </table>
+          <p class="vide" id="veh-vide" hidden>Aucun véhicule ne correspond.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+
 </main>
 
 <!-- ============ FICHE VÉHICULE ============ -->
@@ -346,13 +501,16 @@ tbody tr:hover{background:#F2F6FC}
   </div>
 </div>
 
+<div class="print-zone" id="print-zone" aria-hidden="true"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script>
 /* =====================================================================
-   ÉCRAN MANAGER — LOGIQUE APPLICATIVE  ·  V1.1
+   ÉCRAN MANAGER — LOGIQUE APPLICATIVE  ·  V1.2
    ===================================================================== */
 
-const VERSION      = 'V1.1';
+const VERSION      = 'V1.2';
 const SUPA_URL     = 'https://regjplqlvlkbqorfzlsd.supabase.co';
 const SUPA_KEY     = 'sb_publishable_2FmqoaEwSR4HlBvfRllu3g_L-ofivjJ';
 const MANAGER_DOMAINE = '@bdsn.vlg';
@@ -403,6 +561,10 @@ let auteurs  = {};    // id → « Prénom N. »
 let filtre   = 'tous';
 let tri      = { colonne:'jours', sens:-1 };
 let moiConnecte = null;
+let vehiculesAdmin = [];
+let peutAdministrerVehicules = false;
+
+const MOBILE_URL = 'https://relevekm.mon-app-manager.fr/';
 
 /* =====================================================================
    1. CONNEXION
@@ -455,14 +617,15 @@ async function apresConnexion(){
   $('motdepasse').value = '';
   $('soustitre').textContent = `Agence Boucles de Seine Nord · ${moi.prenom} ${moi.nom}`;
   $('gestion-comptes').hidden = !moi.est_administrateur;
+  $('module-comptes').hidden = !moi.est_administrateur;
+  $('nav-modules').hidden = false;
   $('deconnexion').hidden = false;
   message('msg-connexion','','');
   if (moi.manager_auth_id === user.id && moi.manager_mdp_a_changer){
     ecran('mdp-manager');
     return;
   }
-  ecran('parc');
-  await charger();
+  ecran('accueil');
 }
 
 $('btn-mdp-manager').onclick = async () => {
@@ -489,19 +652,43 @@ $('btn-mdp-manager').onclick = async () => {
   $('manager-mdp1').value = '';
   $('manager-mdp2').value = '';
   message('msg-mdp-manager','','');
-  ecran('parc');
-  await charger();
+  ecran('accueil');
 };
 
 $('deconnexion').onclick = async () => {
   await db.auth.signOut();
   parc = []; releves = []; auteurs = {};
+  vehiculesAdmin = [];
   moiConnecte = null;
   $('deconnexion').hidden = true;
   $('gestion-comptes').hidden = true;
+  $('module-comptes').hidden = true;
+  $('nav-modules').hidden = true;
   $('soustitre').textContent = 'Agence Boucles de Seine Nord';
   ecran('connexion');
 };
+
+async function ouvrirModule(nom){
+  if (nom === 'accueil'){
+    ecran('accueil');
+    return;
+  }
+  if (nom === 'parc'){
+    ecran('parc');
+    if (!parc.length) await charger();
+    else { compter(); afficher(); }
+    return;
+  }
+  if (nom === 'vehicules'){
+    ecran('vehicules');
+    await chargerVehicules();
+  }
+}
+
+document.querySelectorAll('[data-module]').forEach(b => {
+  b.addEventListener('click', () => ouvrirModule(b.dataset.module));
+});
+$('module-comptes').onclick = () => { location.href = 'accounts.html'; };
 
 /* =====================================================================
    2. CHARGEMENT DES DONNÉES
@@ -679,7 +866,246 @@ $('voile').onclick = e => { if (e.target === $('voile')) $('voile').hidden = tru
 document.addEventListener('keydown', e => { if (e.key === 'Escape') $('voile').hidden = true; });
 
 /* =====================================================================
-   6. EXPORT CSV — séparateur point-virgule, lisible par Excel français
+   6. GESTION VÉHICULES ET AFFICHETTES QR
+   ===================================================================== */
+async function apiVehicules(method = 'GET', body){
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) throw new Error('Votre session a expiré.');
+  const response = await fetch('/api/vehicles', {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + session.access_token
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || 'Opération impossible.');
+  return data;
+}
+
+function normaliserPlaque(valeur){
+  const brut = String(valeur || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  return /^[A-Z]{2}[0-9]{3}[A-Z]{2}$/.test(brut)
+    ? `${brut.slice(0,2)}-${brut.slice(2,5)}-${brut.slice(5)}`
+    : String(valeur || '').toUpperCase().trim();
+}
+
+function formatCourtDateHeure(value){
+  return value ? new Date(value).toLocaleDateString('fr-FR') : 'jamais';
+}
+
+async function chargerVehicules(){
+  message('msg-vehicules','info','Chargement du parc…');
+  try {
+    const data = await apiVehicules();
+    vehiculesAdmin = data.vehicles || [];
+    peutAdministrerVehicules = !!data.administrator;
+    $('form-vehicule').querySelectorAll('input,button').forEach(el => { el.disabled = !peutAdministrerVehicules; });
+    $('btn-print-posters').disabled = !peutAdministrerVehicules;
+    message('msg-vehicules', peutAdministrerVehicules ? '' : 'orange',
+      peutAdministrerVehicules ? '' : 'Lecture seule',
+      peutAdministrerVehicules ? '' : "Votre compte peut consulter le parc, mais les créations, archivages et impressions mémorisées sont réservés aux administrateurs.");
+    afficherVehicules();
+  } catch (error) {
+    message('msg-vehicules','rouge','Parc non chargé', error.message);
+  }
+}
+
+function vehiculesAffiches(){
+  const q = normaliser($('veh-recherche-admin').value.trim());
+  const f = $('veh-filtre').value;
+  return vehiculesAdmin.filter(v => {
+    if (f === 'actifs' && !v.actif) return false;
+    if (f === 'archives' && v.actif) return false;
+    if (f === 'sans-affichette' && (!v.actif || v.affichette_imprimee_le)) return false;
+    if (q.length >= 2 &&
+      !normaliser(v.immatriculation).includes(q) &&
+      !normaliser(v.marque || '').includes(q) &&
+      !normaliser(v.modele_court || v.modele || '').includes(q)) return false;
+    return true;
+  });
+}
+
+function afficherVehicules(){
+  const liste = vehiculesAffiches();
+  const corps = $('veh-lignes');
+  corps.replaceChildren();
+  liste.forEach(v => {
+    const tr = document.createElement('tr');
+    tr.dataset.id = v.id;
+
+    const checkTd = document.createElement('td');
+    checkTd.className = 'check-col';
+    const check = document.createElement('input');
+    check.type = 'checkbox';
+    check.className = 'veh-select';
+    check.disabled = !v.actif;
+    check.checked = false;
+    checkTd.appendChild(check);
+    tr.appendChild(checkTd);
+
+    const veh = document.createElement('td');
+    const plaque = document.createElement('div');
+    plaque.className = 'plaque';
+    plaque.textContent = v.immatriculation || '';
+    const modele = document.createElement('div');
+    modele.className = 'modele';
+    modele.textContent = [v.marque, v.modele_court || v.modele].filter(Boolean).join(' ');
+    veh.append(plaque, modele);
+    tr.appendChild(veh);
+
+    const site = document.createElement('td');
+    site.textContent = v.site || '-';
+    tr.appendChild(site);
+
+    const statut = document.createElement('td');
+    statut.innerHTML = v.actif
+      ? '<span class="badge vert">actif</span>'
+      : '<span class="badge gris">archivé</span>';
+    tr.appendChild(statut);
+
+    const aff = document.createElement('td');
+    aff.innerHTML = v.affichette_imprimee_le
+      ? `<span class="badge vert">imprimée</span><div class="mini">${formatCourtDateHeure(v.affichette_imprimee_le)}</div>`
+      : '<span class="badge orange">à imprimer</span>';
+    tr.appendChild(aff);
+
+    const actions = document.createElement('td');
+    actions.className = 'actions-ligne';
+    if (v.actif){
+      const one = document.createElement('button');
+      one.className = 'secondaire';
+      one.type = 'button';
+      one.textContent = 'QR';
+      one.disabled = !peutAdministrerVehicules;
+      one.onclick = () => imprimerAffichettes([v]);
+      const archive = document.createElement('button');
+      archive.className = 'secondaire';
+      archive.type = 'button';
+      archive.textContent = 'Archiver';
+      archive.disabled = !peutAdministrerVehicules;
+      archive.onclick = () => archiverVehicule(v);
+      actions.append(one, archive);
+    } else {
+      const reactivate = document.createElement('button');
+      reactivate.className = 'secondaire';
+      reactivate.type = 'button';
+      reactivate.textContent = 'Réactiver';
+      reactivate.disabled = !peutAdministrerVehicules;
+      reactivate.onclick = () => actionVehicule(() => apiVehicules('PATCH', { action:'reactivate', id:v.id }), 'Véhicule réactivé.');
+      actions.appendChild(reactivate);
+    }
+    tr.appendChild(actions);
+    corps.appendChild(tr);
+  });
+  $('veh-vide').hidden = liste.length > 0;
+  $('veh-compte').textContent = `${liste.length} véhicule${liste.length > 1 ? 's' : ''} affiché${liste.length > 1 ? 's' : ''}`;
+  $('veh-check-all').checked = false;
+}
+
+async function actionVehicule(work, ok){
+  try {
+    message('msg-vehicules','info','Enregistrement…');
+    await work();
+    await chargerVehicules();
+    message('msg-vehicules','info', ok);
+    return true;
+  } catch (error) {
+    message('msg-vehicules','rouge','Action impossible', error.message);
+    return false;
+  }
+}
+
+$('form-vehicule').onsubmit = event => {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget);
+  const vehicle = {
+    immatriculation: data.get('immatriculation'),
+    marque: data.get('marque'),
+    modele_court: data.get('modele_court'),
+    site: data.get('site'),
+    kilometrage_initial: data.get('kilometrage_initial')
+  };
+  actionVehicule(
+    () => apiVehicules('POST', { action:'create', vehicle }),
+    'Véhicule créé. Vous pouvez imprimer son affichette QR.'
+  ).then(ok => {
+    if (ok){
+      event.currentTarget.reset();
+      event.currentTarget.elements.site.value = 'VLG';
+    }
+  });
+};
+
+$('veh-recherche-admin').addEventListener('input', afficherVehicules);
+$('veh-filtre').addEventListener('change', afficherVehicules);
+$('btn-vehicules-refresh').onclick = chargerVehicules;
+$('veh-check-all').onchange = () => {
+  $('veh-lignes').querySelectorAll('.veh-select:not(:disabled)').forEach(c => { c.checked = $('veh-check-all').checked; });
+};
+
+async function archiverVehicule(v){
+  const motif = prompt(`Motif d'archivage pour ${v.immatriculation} :`, 'restitution');
+  if (motif === null) return;
+  await actionVehicule(
+    () => apiVehicules('PATCH', { action:'archive', id:v.id, motif }),
+    'Véhicule archivé. Il disparaît de la saisie mobile mais reste dans l’historique.'
+  );
+}
+
+function vehiculesSelectionnes(){
+  const ids = Array.from($('veh-lignes').querySelectorAll('tr'))
+    .filter(tr => tr.querySelector('.veh-select') && tr.querySelector('.veh-select').checked)
+    .map(tr => tr.dataset.id);
+  return vehiculesAdmin.filter(v => ids.includes(v.id) && v.actif);
+}
+
+$('btn-print-posters').onclick = () => {
+  const selection = vehiculesSelectionnes();
+  if (!selection.length){
+    message('msg-vehicules','orange','Aucun véhicule sélectionné','Cochez au moins un véhicule actif avant d’imprimer.');
+    return;
+  }
+  imprimerAffichettes(selection);
+};
+
+function posterUrl(v){
+  return MOBILE_URL + '?v=' + encodeURIComponent(v.immatriculation || '');
+}
+
+function qrSvg(url){
+  const qr = qrcode(0, 'M');
+  qr.addData(url);
+  qr.make();
+  return qr.createSvgTag(4, 0);
+}
+
+async function imprimerAffichettes(liste){
+  const zone = $('print-zone');
+  zone.innerHTML = liste.map(v => {
+    const url = posterUrl(v);
+    const marque = propre(String(v.marque || (v.modele || '').split(' ')[0] || '').toUpperCase());
+    const modele = propre(v.modele_court || v.modele || '');
+    const plaque = propre(normaliserPlaque(v.immatriculation));
+    return `<article class="poster">
+      <div class="poster-head"><b>RELEVÉ KILOMÉTRIQUE</b><span>Scannez pour saisir le kilométrage</span></div>
+      <div class="poster-qr">${qrSvg(url)}</div>
+      <div class="poster-brand">${marque}</div>
+      <div class="poster-model">${modele}</div>
+      <div class="poster-plate"><span>F</span><span>${plaque}</span></div>
+      <div class="poster-foot"><span>GRDF · Agence VLG</span><span>relevekm.mon-app-manager.fr</span><span>${VERSION}</span></div>
+    </article>`;
+  }).join('');
+  window.print();
+  await actionVehicule(
+    () => apiVehicules('PATCH', { action:'mark-posters', ids: liste.map(v => v.id) }),
+    'Affichette(s) marquée(s) comme imprimée(s).'
+  );
+}
+
+/* =====================================================================
+   7. EXPORT CSV — séparateur point-virgule, lisible par Excel français
    ===================================================================== */
 $('btn-export').onclick = () => {
   const liste = classer(retenus());

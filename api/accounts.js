@@ -33,6 +33,10 @@ function validPin(value) {
   return /^[0-9]{6}$/.test(value);
 }
 
+function normalizePin(value) {
+  return String(value == null ? '' : value).replace(/\D/g, '').slice(0, 6);
+}
+
 function validManagerPassword(value) {
   return typeof value === 'string' && value.length >= 8 && value.length <= 72;
 }
@@ -111,7 +115,7 @@ function normalizeAccount(raw) {
   const nom = cleanText(raw.nom).toUpperCase();
   const prenom = cleanText(raw.prenom);
   const nni = cleanText(raw.nni, 6).toUpperCase();
-  const pin = cleanText(raw.pin, 6);
+  const pin = normalizePin(raw.pin);
   const role = raw.role === 'manager' ? 'manager' : 'technicien';
   const managerPassword = typeof raw.managerPassword === 'string' ? raw.managerPassword : '';
   return { nom, prenom, nni, pin, role, managerPassword, est_administrateur: raw.est_administrateur === true };
@@ -181,7 +185,7 @@ async function createAccount(config, raw) {
   let managerAuthId = null;
   try {
     if (account.role === 'manager') {
-      managerAuthId = await createAuthUser(config, managerEmail(account.nni), account.managerPassword, { access: 'manager' });
+      managerAuthId = await createAuthUser(config, managerEmail(account), account.managerPassword, { access: 'manager' });
     }
     await supabase(config.url, config.serviceKey, '/rest/v1/profils', {
       method: 'POST',
@@ -238,7 +242,7 @@ async function updateAccount(config, caller, raw) {
 
 async function resetPin(config, raw) {
   const id = cleanText(raw.id, 50);
-  const pin = cleanText(raw.pin, 6);
+  const pin = normalizePin(raw.pin);
   if (!id || !validPin(pin)) throw new Error('Le nouveau PIN doit contenir 6 chiffres.');
   await supabase(config.url, config.serviceKey, `/auth/v1/admin/users/${encodeURIComponent(id)}`, {
     method: 'PUT', body: JSON.stringify({ password: pin })

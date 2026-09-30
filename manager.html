@@ -228,6 +228,7 @@ tbody tr:hover{background:#F2F6FC}
   </div>
   <div class="droite">
     <span class="marque">V1.1</span>
+    <a class="lien-clair" id="gestion-comptes" href="accounts.html" hidden>Gestion des comptes</a>
     <button class="lien-clair" id="deconnexion" hidden>Se déconnecter</button>
   </div>
 </header>
@@ -241,15 +242,33 @@ tbody tr:hover{background:#F2F6FC}
       <p class="sous">Réservé aux comptes managers de l'agence.</p>
       <div id="msg-connexion"></div>
       <label class="champ">
-        <span>Adresse de connexion</span>
-        <input id="email" type="email" autocomplete="username" autocapitalize="off"
-               spellcheck="false" placeholder="prenom.nom@…">
+        <span>Identifiant manager</span>
+        <input id="email" type="text" autocomplete="username" autocapitalize="off"
+               spellcheck="false" placeholder="NNI ou identifiant technique">
       </label>
       <label class="champ">
         <span>Mot de passe</span>
         <input id="motdepasse" type="password" autocomplete="current-password" placeholder="••••••">
       </label>
       <button class="principal" id="btn-connexion">Ouvrir le tableau de bord</button>
+    </div>
+  </section>
+
+  <!-- ============ 1B. CHANGEMENT MOT DE PASSE MANAGER ============ -->
+  <section id="ecran-mdp-manager" class="ecran">
+    <div class="boite">
+      <h2 class="titre">Choisir un mot de passe manager</h2>
+      <p class="sous">Remplacez le mot de passe temporaire par un mot de passe personnel d'au moins 8 caractères.</p>
+      <div id="msg-mdp-manager"></div>
+      <label class="champ">
+        <span>Nouveau mot de passe</span>
+        <input id="manager-mdp1" type="password" autocomplete="new-password" placeholder="8 caractères minimum">
+      </label>
+      <label class="champ">
+        <span>Confirmer le mot de passe</span>
+        <input id="manager-mdp2" type="password" autocomplete="new-password">
+      </label>
+      <button class="principal" id="btn-mdp-manager">Enregistrer le mot de passe</button>
     </div>
   </section>
 
@@ -336,6 +355,7 @@ tbody tr:hover{background:#F2F6FC}
 const VERSION      = 'V1.1';
 const SUPA_URL     = 'https://regjplqlvlkbqorfzlsd.supabase.co';
 const SUPA_KEY     = 'sb_publishable_2FmqoaEwSR4HlBvfRllu3g_L-ofivjJ';
+const MANAGER_DOMAINE = '@bdsn.vlg';
 const SEUIL_RETARD = 30;     // jours sans relevé avant alerte — relevé mensuel
 const SEUIL_ECART  = 1500;   // écart inhabituel entre deux relevés, en km
 
@@ -382,15 +402,16 @@ let releves  = [];    // tous les relevés
 let auteurs  = {};    // id → « Prénom N. »
 let filtre   = 'tous';
 let tri      = { colonne:'jours', sens:-1 };
+let moiConnecte = null;
 
 /* =====================================================================
    1. CONNEXION
    ===================================================================== */
 $('btn-connexion').onclick = async () => {
-  const email = $('email').value.trim();
+  const email = identifiantManager($('email').value.trim());
   const mdp   = $('motdepasse').value;
   if (!email || !mdp){
-    message('msg-connexion','rouge','Champs incomplets','Renseignez votre adresse et votre mot de passe.');
+    message('msg-connexion','rouge','Champs incomplets','Renseignez votre identifiant et votre mot de passe.');
     return;
   }
   $('btn-connexion').disabled = true;
@@ -409,11 +430,20 @@ $('btn-connexion').onclick = async () => {
 };
 $('motdepasse').addEventListener('keydown', e => { if (e.key === 'Enter') $('btn-connexion').click(); });
 
+function identifiantManager(valeur){
+  const v = valeur.trim().toLowerCase();
+  if (!v) return '';
+  if (v.includes('@')) return v;
+  return v + MANAGER_DOMAINE;
+}
+
 async function apresConnexion(){
   /* Le manager voit tout l'annuaire : on cible explicitement sa propre ligne */
   const { data: { user } } = await db.auth.getUser();
   const { data: moi } = await db.from('profils')
-    .select('prenom, nom, role').eq('id', user.id).maybeSingle();
+    .select('id, prenom, nom, role, est_administrateur, manager_auth_id, manager_mdp_a_changer')
+    .or(`id.eq.${user.id},manager_auth_id.eq.${user.id}`)
+    .maybeSingle();
 
   if (!moi || moi.role !== 'manager'){
     await db.auth.signOut();
@@ -421,18 +451,54 @@ async function apresConnexion(){
       "Ce tableau de bord est réservé aux managers. Pour saisir un relevé, utilisez l'application technicien.");
     return;
   }
+  moiConnecte = moi;
   $('motdepasse').value = '';
   $('soustitre').textContent = `Agence Boucles de Seine Nord · ${moi.prenom} ${moi.nom}`;
+  $('gestion-comptes').hidden = !moi.est_administrateur;
   $('deconnexion').hidden = false;
   message('msg-connexion','','');
+  if (moi.manager_auth_id === user.id && moi.manager_mdp_a_changer){
+    ecran('mdp-manager');
+    return;
+  }
   ecran('parc');
   await charger();
 }
 
+$('btn-mdp-manager').onclick = async () => {
+  const a = $('manager-mdp1').value;
+  const b = $('manager-mdp2').value;
+  if (a.length < 8){
+    message('msg-mdp-manager','rouge','Mot de passe trop court','Utilisez au moins 8 caractères.');
+    return;
+  }
+  if (a !== b){
+    message('msg-mdp-manager','rouge','Les deux mots de passe diffèrent','Ressaisissez le même mot de passe.');
+    return;
+  }
+  $('btn-mdp-manager').disabled = true;
+  $('btn-mdp-manager').textContent = 'Enregistrement…';
+  const { error } = await db.auth.updateUser({ password:a });
+  if (!error) await db.rpc('manager_mdp_change_effectue');
+  $('btn-mdp-manager').disabled = false;
+  $('btn-mdp-manager').textContent = 'Enregistrer le mot de passe';
+  if (error){
+    message('msg-mdp-manager','rouge','Enregistrement impossible', error.message);
+    return;
+  }
+  $('manager-mdp1').value = '';
+  $('manager-mdp2').value = '';
+  message('msg-mdp-manager','','');
+  ecran('parc');
+  await charger();
+};
+
 $('deconnexion').onclick = async () => {
   await db.auth.signOut();
   parc = []; releves = []; auteurs = {};
+  moiConnecte = null;
   $('deconnexion').hidden = true;
+  $('gestion-comptes').hidden = true;
   $('soustitre').textContent = 'Agence Boucles de Seine Nord';
   ecran('connexion');
 };

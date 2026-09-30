@@ -1,0 +1,5 @@
+.codex-build
+.codex-finalizer
+.env
+.env.*
+out
